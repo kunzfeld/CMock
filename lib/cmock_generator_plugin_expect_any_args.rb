@@ -29,20 +29,20 @@ class CMockGeneratorPluginExpectAnyArgs
 
   def mock_function_declarations(function)
     if (function[:return][:void?])
-      return "#define #{function[:name]}_ExpectAnyArgs() #{function[:name]}_CMockExpectAnyArgs(__LINE__)\n" +
-             "void #{function[:name]}_CMockExpectAnyArgs(UNITY_LINE_TYPE cmock_line);\n"
+      return "#define #{function[:name]}_ExpectAnyArgs() #{function[:name]}_CMockExpectAnyArgs(__FILE__, __LINE__)\n" +
+             "void #{function[:name]}_CMockExpectAnyArgs(const char *file, UNITY_LINE_TYPE cmock_line);\n"
     else
-      return "#define #{function[:name]}_ExpectAnyArgsAndReturn(cmock_retval) #{function[:name]}_CMockExpectAnyArgsAndReturn(__LINE__, cmock_retval)\n" +
-             "void #{function[:name]}_CMockExpectAnyArgsAndReturn(UNITY_LINE_TYPE cmock_line, #{function[:return][:str]});\n"
+      return "#define #{function[:name]}_ExpectAnyArgsAndReturn(cmock_retval) #{function[:name]}_CMockExpectAnyArgsAndReturn(__FILE__, __LINE__, cmock_retval)\n" +
+             "void #{function[:name]}_CMockExpectAnyArgsAndReturn(const char *file, UNITY_LINE_TYPE cmock_line, #{function[:return][:str]});\n"
     end
   end
 
   def mock_interfaces(function)
     lines = ""
     if (function[:return][:void?])
-      lines << "void #{function[:name]}_CMockExpectAnyArgs(UNITY_LINE_TYPE cmock_line)\n{\n"
+      lines << "void #{function[:name]}_CMockExpectAnyArgs(const char *file, UNITY_LINE_TYPE cmock_line)\n{\n"
     else
-      lines << "void #{function[:name]}_CMockExpectAnyArgsAndReturn(UNITY_LINE_TYPE cmock_line, #{function[:return][:str]})\n{\n"
+      lines << "void #{function[:name]}_CMockExpectAnyArgsAndReturn(const char *file, UNITY_LINE_TYPE cmock_line, #{function[:return][:str]})\n{\n"
     end
     lines << @utils.code_add_base_expectation(function[:name], true)
     unless (function[:return][:void?])

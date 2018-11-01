@@ -165,6 +165,7 @@ class CMockGenerator
     functions.each do |function|
       file << "typedef struct _CMOCK_#{function[:name]}_CALL_INSTANCE\n{\n"
       file << "  UNITY_LINE_TYPE LineNumber;\n"
+      file << "  const char *file;\n"
       file << @plugins.run(:instance_typedefs, function)
       file << "\n} CMOCK_#{function[:name]}_CALL_INSTANCE;\n\n"
     end
@@ -243,13 +244,14 @@ class CMockGenerator
     file << "  cmock_call_instance = (CMOCK_#{function[:name]}_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.#{function[:name]}_CallInstance);\n"
     file << "  Mock.#{function[:name]}_CallInstance = CMock_Guts_MemNext(Mock.#{function[:name]}_CallInstance);\n"
     file << @plugins.run(:mock_implementation_precheck, function)
-    file << "  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);\n"
+    file << "  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, TEST_FILE_NAME, cmock_line, CMockStringCalledMore);\n"
     file << "  cmock_line = cmock_call_instance->LineNumber;\n"
+    file << "  const char* file = cmock_call_instance->file;\n"
     if (@ordered)
       file << "  if (cmock_call_instance->CallOrder > ++GlobalVerifyOrder)\n"
-      file << "    UNITY_TEST_FAIL(cmock_line, CMockStringCalledEarly);\n"
+      file << "    UNITY_TEST_FAIL(file, cmock_line, CMockStringCalledEarly);\n"
       file << "  if (cmock_call_instance->CallOrder < GlobalVerifyOrder)\n"
-      file << "    UNITY_TEST_FAIL(cmock_line, CMockStringCalledLate);\n"
+      file << "    UNITY_TEST_FAIL(file, cmock_line, CMockStringCalledLate);\n"
     end
     file << @plugins.run(:mock_implementation, function)
     file << "  UNITY_CLR_DETAILS();\n"

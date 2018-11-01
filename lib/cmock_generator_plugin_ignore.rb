@@ -28,8 +28,8 @@ class CMockGeneratorPluginIgnore
       return "#define #{function[:name]}_Ignore() #{function[:name]}_CMockIgnore()\n" +
              "void #{function[:name]}_CMockIgnore(void);\n"
     else
-      return "#define #{function[:name]}_IgnoreAndReturn(cmock_retval) #{function[:name]}_CMockIgnoreAndReturn(__LINE__, cmock_retval)\n" +
-             "void #{function[:name]}_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, #{function[:return][:str]});\n"
+      return "#define #{function[:name]}_IgnoreAndReturn(cmock_retval) #{function[:name]}_CMockIgnoreAndReturn(__FILE__, __LINE__, cmock_retval)\n" +
+             "void #{function[:name]}_CMockIgnoreAndReturn(const char *file, UNITY_LINE_TYPE cmock_line, #{function[:return][:str]});\n"
     end
   end
 
@@ -52,7 +52,7 @@ class CMockGeneratorPluginIgnore
     if (function[:return][:void?])
       lines << "void #{function[:name]}_CMockIgnore(void)\n{\n"
     else
-      lines << "void #{function[:name]}_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, #{function[:return][:str]})\n{\n"
+      lines << "void #{function[:name]}_CMockIgnoreAndReturn(const char *file, UNITY_LINE_TYPE cmock_line, #{function[:return][:str]})\n{\n"
     end
     if (!function[:return][:void?])
       lines << @utils.code_add_base_expectation(function[:name], false)
